@@ -170,7 +170,7 @@ class Dense(nn.Module):
     """
     features: int
     use_bias: bool = True
-    kernel_init: Callable = nn.initializers.lecun_normal()
+    kernel_init: Callable = nn.initializers.xavier_normal()
     bias_init: Callable = nn.initializers.zeros
     activation: Optional[Callable] = None
 
