@@ -18,6 +18,7 @@ __all__ = [
     'Bihomogeneous_k3',
     'Bihomogeneous_k4',
     'Dense',
+    'SirenDense',
     'SquareDense',
     'WidthOneDense'
 ]
@@ -184,6 +185,40 @@ class Dense(nn.Module):
         if self.activation:
             y = self.activation(y)
         return y
+
+
+class SirenDense(nn.Module):
+    """
+    Dense layer with Sine activation and SIREN initialization.
+    Reference: 'Implicit Neural Representations with Periodic Activation Functions'
+    """
+    features: int
+    omega_0: float = 30.0
+    is_first_layer: bool = False
+    
+    @nn.compact
+    def __call__(self, inputs: jnp.ndarray) -> jnp.ndarray:
+        n_input = inputs.shape[-1]
+        
+        # SIREN Initialization
+        if self.is_first_layer:
+            # For the first layer, the paper suggests uniform(-1/n, 1/n)
+            bound = 1.0 / n_input
+        else:
+            # For hidden layers: uniform(-sqrt(6/n)/omega, sqrt(6/n)/omega)
+            bound = jnp.sqrt(6.0 / n_input) / self.omega_0
+
+        def init_fn(key, shape, dtype=jnp.float32):
+            return jax.random.uniform(key, shape, dtype, minval=-bound, maxval=bound)
+            
+        kernel = self.param('kernel', init_fn, (n_input, self.features))
+        bias = self.param('bias', init_fn, (self.features,))
+        
+        # Affine transform
+        x = jnp.dot(inputs, kernel) + bias
+        
+        # Sine activation with frequency scaling
+        return jnp.sin(self.omega_0 * x)
 
 
 class SquareDense(nn.Module):
