@@ -187,6 +187,7 @@ def train_lbfgs(model: Any,
             return solver.update(p, s)
             
         msg = f"Initial Loss: {state.value:.5f}"
+        loss_list.append(state.value)
         print(msg)
         if history is not None: history.append(msg)
         
