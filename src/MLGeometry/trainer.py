@@ -61,6 +61,7 @@ def train_optax(model: Any,
     Returns:
         Tuple of (trained_params, final_avg_loss).
     """
+    loss_list=[]
     
     # Auto-initialize parameters if not provided
     if params is None:
@@ -116,7 +117,8 @@ def train_optax(model: Any,
         
         if verbose and (epoch % 10 == 0 or epoch == 1):
             msg = f"Epoch {epoch}: Avg Loss = {avg_loss:.5f}"
-            print(msg)
+            #print(msg)
+            loss_list.append(avg_loss)
             if history is not None: history.append(msg)
             
     total_time = time.time() - start_time
@@ -125,7 +127,7 @@ def train_optax(model: Any,
         print(msg)
         if history is not None: history.append(msg)
         
-    return params, avg_loss
+    return params, avg_loss,loss_list
 
 
 def train_lbfgs(model: Any,
@@ -155,6 +157,7 @@ def train_lbfgs(model: Any,
         (trained_params, final_loss)
     """
     # Auto-initialize parameters if not provided
+    loss_list=[]
     if params is None:
         input_dim = dataset['points'].shape[-1]
         if verbose:
@@ -184,6 +187,7 @@ def train_lbfgs(model: Any,
             return solver.update(p, s)
             
         msg = f"Initial Loss: {state.value:.5f}"
+        loss_list.append(state.value)
         print(msg)
         if history is not None: history.append(msg)
         
@@ -209,4 +213,4 @@ def train_lbfgs(model: Any,
         params = res.params
         final_loss = loss_fn(params)
         
-    return params, final_loss
+    return params, final_loss,loss_list
