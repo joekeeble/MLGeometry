@@ -115,7 +115,7 @@ def train_optax(model: Any,
             
         avg_loss = epoch_loss / num_batches
         
-        if verbose and (epoch % 10 == 0 or epoch == 1):
+        if verbose and (epoch % 1 == 0 or epoch == 1):
             msg = f"Epoch {epoch}: Avg Loss = {avg_loss:.5f}"
             #print(msg)
             loss_list.append(avg_loss)
